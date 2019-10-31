@@ -1,4 +1,4 @@
-The [lightning framework](https://webplatformforembedded.github.io/Lightning/docs/) has a somewhat complex bootstrapping setup so I just fetched the demos and mapped them to their documentation pages. I find this way to explore much friendlier. You just have to edit `index.html` to point to the app module you want to check out.
+The [lightning framework](https://webplatformforembedded.github.io/Lightning/) has a somewhat complex bootstrapping setup so I just fetched the demos and mapped them to their documentation pages. I find this way to explore much friendlier. You just have to edit `index.html` to point to the app module you want to check out.
 
 This has been flawlessly tested on Safari/Webkit. If you find issues loading images, disable the `useImageWorker` option on `index.html`.
 
