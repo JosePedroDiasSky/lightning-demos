@@ -8,54 +8,141 @@
         margin: 0;
         overflow: hidden;
       }
+
+      .sample-button {
+        flex: 1 1 auto;
+        margin: 2px;
+      }
+
+      .sample-button.selected {
+        background-color: gray;
+      }
+
+      #sidebar {
+        position: absolute;
+        display: flex;
+        flex-direction: column;
+        top: 0;
+        left: -180px;
+        width: 180px;
+        height: 100%;
+        background-color: black;
+
+        transition: left 1s cubic-bezier(0.19, 1, 0.22, 1);
+      }
+
+      #sidebar.open {
+        left: 0;
+      }
+
+      #open-sidebar {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 48px;
+        height: 48px;
+        background: black;
+        outline: none;
+        color: white;
+        cursor: pointer;
+        border: none;
+      }
+
+      .hidden {
+        display: none;
+      }
     </style>
   </head>
   <body>
     <script type="module">
-      for (let i = 0, len = 35; i < len; i++) {
-        const button = document.createElement('button');
-        button.innerText = `Sample ${i + 1}`;
-        button.onclick = function handleClick () {
+      const $body = document.body;
+      const $sidebar = document.getElementById('sidebar');
+      const $openSidebarButton = document.getElementById('open-sidebar');
+      let selectedSample = 1;
+
+      function loadSample(sampleIndex) {
+        closeSidebar();
+        selectedSample = sampleIndex;
+        renderSidebarButtons();
+
+        import(`./app${sampleIndex < 10 ? `0${sampleIndex}` : sampleIndex}.js`).then(module => {
+          const App = module.default;
+
+          const options = {
+            stage: {
+              w: window.innerWidth,
+              h: window.innerHeight,
+              //w: 800,
+              //h: 600,
+              //clearColor: 0xff000000,
+              clearColor: 0xff777777,
+              useImageWorker: false,
+              debug: true
+            },
+            keys: {
+              38: 'Up',
+              40: 'Down',
+              37: 'Left',
+              39: 'Right',
+              13: 'Enter',
+              9: 'Back',
+              8: 'Back',
+              93: 'Back',
+              174: 'Back',
+              175: 'Menu',
+              83: 'Search' // map S to search
+            }
+          };
+          const app = new App(options);
+          const canvas = app.stage.getCanvas();
+          canvas.addEventListener('click', closeSidebar);
+          document.body.appendChild(app.stage.getCanvas());
+        });
+      }
+
+      function handleSampleClick(sampleIndex) {
+        return function handleClick() {
           const elements = document.getElementsByTagName('canvas');
           for (let element of elements) {
-            document.body.removeChild(element);
+            $body.removeChild(element);
           }
-          const sampleIndex = i + 1
-          import(`./app${sampleIndex < 10 ? `0${sampleIndex}` : sampleIndex}.js`).then(module => {
-            const App = module.default;
-
-            const options = {
-              stage: {
-                w: window.innerWidth,
-                h: window.innerHeight,
-                //w: 800,
-                //h: 600,
-                //clearColor: 0xff000000,
-                clearColor: 0xff777777,
-                useImageWorker: false,
-                debug: true
-              },
-              keys: {
-                38: 'Up',
-                40: 'Down',
-                37: 'Left',
-                39: 'Right',
-                13: 'Enter',
-                9: 'Back',
-                8: 'Back',
-                93: 'Back',
-                174: 'Back',
-                175: 'Menu',
-                83: 'Search' // map S to search
-              }
-            };
-            const app = new App(options);
-            document.body.appendChild(app.stage.getCanvas());
-          });
+          loadSample(sampleIndex);
         }
-
-        document.body.appendChild(button);
       }
+
+      function renderSidebarButtons() {
+        while ($sidebar.firstChild) {
+          $sidebar.removeChild($sidebar.firstChild);
+        }
+        for (let i = 0, len = 35; i < len; i++) {
+          const sampleIndex = i + 1;
+          const button = document.createElement('button');
+          button.innerText = `Sample ${sampleIndex}`;
+          button.classList.add('sample-button');
+          if (sampleIndex === selectedSample) {
+            button.classList.add('selected');
+          }
+          button.onclick = handleSampleClick(sampleIndex);
+          $sidebar.appendChild(button);
+        }
+      }
+
+      $openSidebarButton.onclick = openSidebar;
+
+      function openSidebar() {
+        $sidebar.classList.add('open');
+        $openSidebarButton.classList.add('hidden');
+      }
+
+      function closeSidebar() {
+        $sidebar.classList.remove('open')
+        $openSidebarButton.classList.remove('hidden');
+      }
+
+      loadSample(selectedSample);
     </script>
+
+    <div id="sidebar"></div>
+    <button id="open-sidebar">Open</button>
   </body>
 </html>
