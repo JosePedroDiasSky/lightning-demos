@@ -6,40 +6,56 @@
     <style>
       body {
         margin: 0;
+        overflow: hidden;
       }
     </style>
   </head>
   <body>
     <script type="module">
-      import App from './app08.js'; // 01-35
+      for (let i = 0, len = 35; i < len; i++) {
+        const button = document.createElement('button');
+        button.innerText = `Sample ${i + 1}`;
+        button.onclick = function handleClick () {
+          const elements = document.getElementsByTagName('canvas');
+          for (let element of elements) {
+            document.body.removeChild(element);
+          }
+          const sampleIndex = i + 1
+          import(`./app${sampleIndex < 10 ? `0${sampleIndex}` : sampleIndex}.js`).then(module => {
+            const App = module.default;
 
-      const options = {
-        stage: {
-          w: window.innerWidth,
-          h: window.innerHeight,
-          //w: 800,
-          //h: 600,
-          //clearColor: 0xff000000,
-          clearColor: 0xff777777,
-          useImageWorker: false,
-          debug: true
-        },
-        keys: {
-          38: 'Up',
-          40: 'Down',
-          37: 'Left',
-          39: 'Right',
-          13: 'Enter',
-          9: 'Back',
-          8: 'Back',
-          93: 'Back',
-          174: 'Back',
-          175: 'Menu',
-          83: 'Search' // map S to search
+            const options = {
+              stage: {
+                w: window.innerWidth,
+                h: window.innerHeight,
+                //w: 800,
+                //h: 600,
+                //clearColor: 0xff000000,
+                clearColor: 0xff777777,
+                useImageWorker: false,
+                debug: true
+              },
+              keys: {
+                38: 'Up',
+                40: 'Down',
+                37: 'Left',
+                39: 'Right',
+                13: 'Enter',
+                9: 'Back',
+                8: 'Back',
+                93: 'Back',
+                174: 'Back',
+                175: 'Menu',
+                83: 'Search' // map S to search
+              }
+            };
+            const app = new App(options);
+            document.body.appendChild(app.stage.getCanvas());
+          });
         }
-      };
-      const app = new App(options);
-      document.body.appendChild(app.stage.getCanvas());
+
+        document.body.appendChild(button);
+      }
     </script>
   </body>
 </html>
